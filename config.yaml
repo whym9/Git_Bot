@@ -1,0 +1,6 @@
+schedule:
+  daily_reset_hour: 13  # 1PM for resetting counters
+  monthly_reset_day: 1  # First of every month
+
+logging:
+  level: "INFO"

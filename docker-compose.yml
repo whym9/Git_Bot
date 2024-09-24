@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  bot:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - REDIS_URL=redis://redis:6379/0
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "5000:5000"
+    restart: always
+
+  redis:
+    image: redis:6.0
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
