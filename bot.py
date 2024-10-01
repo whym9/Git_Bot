@@ -1,4 +1,5 @@
 import requests
+import openai
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, CallbackContext, ContextTypes, ApplicationBuilder, MessageHandler, filters
@@ -83,11 +84,24 @@ async def handle_join_request(update: Update, context: CallbackContext):
 
 
 async def ai_code_help(update: Update, context: CallbackContext):
-    """Provide AI-powered code suggestions (just a placeholder example)."""
-    user_query = ' '.join(context.args)  # Get user input as query
-    # Mocked GPT output for now
-    gpt_output = f"Here’s a Python code snippet for '{user_query}':\n```python\n# Sample Code\nprint('Hello, World!')\n```"
+    """Provide AI-powered code suggestions"""
+    user_query = update.message.text
     
+    try:
+        # Calling OpenAI's Completion API to generate code
+        response = openai.completions.create(
+            engine="davinci-codex", 
+            prompt=f"Write a Python function to {user_query}",
+            max_tokens=150,
+            temperature=0.5
+        )
+        
+        code_snippet = response.choices[0].text.strip()
+    except Exception as e:
+        code_snippet = f"Failed to generate code due to: {str(e)}"
+
+    # Formatting the output to send to the user
+    gpt_output = f"Based on your query '{user_query}', here's a Python code snippet:\n```python\n{code_snippet}\n```"
     await update.message.reply_text(gpt_output, parse_mode=ParseMode.MARKDOWN)
 
 def main():
@@ -104,8 +118,6 @@ def main():
     # Start the bot
     application.run_polling()
 
-if __name__ == '__main__':
-    main()
 if __name__ == '__main__':
     # Start Scheduler and Bot Polling
     start_scheduler()
